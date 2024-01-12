@@ -12,7 +12,7 @@
 	idcheck = TRUE
 	arrest_type = TRUE
 	auto_patrol = TRUE
-	emagged = 2
+	emagged = TRUE
 	faction = list("syndicate")
 	shoot_sound = 'sound/weapons/wave.ogg'
 	anchored = TRUE
@@ -170,7 +170,7 @@
 /mob/living/simple_animal/bot/ed209/syndicate/emp_act(severity)
 	return
 
-/mob/living/simple_animal/bot/ed209/UnarmedAttack(atom/A)
+/mob/living/simple_animal/bot/ed209/syndicate/UnarmedAttack(atom/A)
 	if(!on)
 		return
 	shootAt(A)

@@ -113,11 +113,11 @@
 		var/obj/item/flash/F = holder
 		F.set_light(7)
 
-	var/arm_slot = (parent_organ == "r_arm" ? slot_r_hand : slot_l_hand)
+	var/arm_slot = (parent_organ == "r_arm" ? SLOT_HUD_RIGHT_HAND : SLOT_HUD_LEFT_HAND)
 	var/obj/item/arm_item = owner.get_item_by_slot(arm_slot)
 
 	if(arm_item)
-		if(istype(arm_item, /obj/item/twohanded/offhand))
+		if(istype(arm_item, /obj/item/offhand))
 			var/obj/item/offhand_arm_item = owner.get_active_hand()
 			to_chat(owner, "<span class='warning'>Your hands are too encumbered wielding [offhand_arm_item] to deploy [src]!</span>")
 			return
@@ -146,7 +146,7 @@
 		return
 
 	// You can emag the arm-mounted implant by activating it while holding emag in it's hand.
-	var/arm_slot = (parent_organ == "r_arm" ? slot_r_hand : slot_l_hand)
+	var/arm_slot = (parent_organ == "r_arm" ? SLOT_HUD_RIGHT_HAND : SLOT_HUD_LEFT_HAND)
 	if(istype(owner.get_item_by_slot(arm_slot), /obj/item/card/emag) && emag_act(owner))
 		return
 
@@ -166,7 +166,7 @@
 	var/list/choices = list()
 	for(var/obj/I in items_list)
 		choices["[I.name]"] = image(icon = I.icon, icon_state = I.icon_state)
-	var/choice = show_radial_menu(user, src, choices, custom_check = CALLBACK(src, PROC_REF(check_menu), user))
+	var/choice = show_radial_menu(user, user, choices, custom_check = CALLBACK(src, PROC_REF(check_menu), user))
 	if(!check_menu(user))
 		return
 	var/obj/item/selected
@@ -184,11 +184,12 @@
 		Retract()
 		owner.visible_message("<span class='danger'>A loud bang comes from [owner]\'s [parent_organ == "r_arm" ? "right" : "left"] arm!</span>")
 		playsound(get_turf(owner), 'sound/weapons/flashbang.ogg', 100, 1)
-		to_chat(owner, "<span class='userdanger'>You feel an explosion erupt inside your [parent_organ == "r_arm" ? "right" : "left"] arm as your implant breaks!</span>")
+		to_chat(owner, "<span class='userdanger'>You feel an explosion erupt inside your [parent_organ == "r_arm" ? "right" : "left"] arm as your implant misfires!</span>")
 		owner.adjust_fire_stacks(20)
 		owner.IgniteMob()
 		owner.adjustFireLoss(25)
 		crit_fail = TRUE
+		addtimer(VARSET_CALLBACK(src, crit_fail, FALSE), 60 SECONDS) //I would rather not have the weapon be permamently disabled, especially as there is no way to fix it.
 	else // The gun will still discharge anyway.
 		..()
 
@@ -293,7 +294,7 @@
 /obj/item/organ/internal/cyberimp/arm/combat/centcom
 	name = "NT specops cybernetics implant"
 	desc = "An extremely powerful cybernetic implant that contains combat and utility modules used by NT special forces."
-	contents = newlist(/obj/item/gun/energy/pulse/pistol/m1911, /obj/item/door_remote/omni, /obj/item/melee/energy/blade/hardlight, /obj/item/reagent_containers/hypospray/combat/nanites, /obj/item/gun/medbeam, /obj/item/borg/stun, /obj/item/implanter/mindshield, /obj/item/flash/armimplant)
+	contents = newlist(/obj/item/gun/energy/pulse/pistol/m1911, /obj/item/door_remote/omni, /obj/item/melee/energy/blade/hardlight, /obj/item/reagent_containers/hypospray/combat/nanites, /obj/item/gun/medbeam, /obj/item/borg/stun, /obj/item/bio_chip_implanter/mindshield, /obj/item/flash/armimplant)
 	icon = 'icons/obj/guns/energy.dmi'
 	icon_state = "m1911"
 	emp_proof = 1
@@ -319,6 +320,19 @@
 	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "janibelt")
 
 /obj/item/organ/internal/cyberimp/arm/janitorial/l
+	parent_organ = "l_arm"
+	slot = "l_arm_device"
+
+/obj/item/organ/internal/cyberimp/arm/janitorial/advanced /// ERT implant, i dont overly expect this to get into the hands of crew
+	name = "advanced janitorial toolset implant"
+	desc = "A set of advanced janitorial tools hidden behind a concealed panel on the user's arm."
+	contents = newlist(/obj/item/mop/advanced, /obj/item/soap/deluxe, /obj/item/lightreplacer/bluespace, /obj/item/holosign_creator/janitor, /obj/item/melee/flyswatter, /obj/item/reagent_containers/spray/cleaner/advanced)
+	origin_tech = "materials=5;engineering=6;biotech=5"
+	action_icon = list(/datum/action/item_action/organ_action/toggle = 'icons/obj/clothing/belts.dmi')
+	action_icon_state = list(/datum/action/item_action/organ_action/toggle = "janibelt")
+	emp_proof = TRUE
+
+/obj/item/organ/internal/cyberimp/arm/janitorial/advanced/l /// its for ERT, but still probably a good idea.
 	parent_organ = "l_arm"
 	slot = "l_arm_device"
 
@@ -373,7 +387,12 @@
 	user.changeNext_move(CLICK_CD_MELEE)
 	var/obj/machinery/power/apc/A = target
 	var/mob/living/carbon/human/H = user
-	if(H.get_int_organ(/obj/item/organ/internal/cell))
+	if(H.get_int_organ(/obj/item/organ/internal/cell) || H.get_int_organ(/obj/item/organ/internal/heart))
+		var/obj/item/organ/internal/heart/robotic = H.get_int_organ(/obj/item/organ/internal/heart)
+		if(robotic)
+			if(!(robotic.status & ORGAN_ROBOT) && !H.get_int_organ(/obj/item/organ/internal/heart/demon/pulse))
+				to_chat(user, "<span class='warning'>You lack a cell in which to store charge!</span>")
+				return
 		if(A.emagged || A.stat & BROKEN)
 			do_sparks(3, 1, A)
 			to_chat(H, "<span class='warning'>The APC power currents surge erratically, damaging your chassis!</span>")
@@ -463,10 +482,11 @@
 	..()
 
 /obj/item/shield/v1_arm
-	name = "vortex feedback arm" //format is they are holding x
-	desc = "A modification to a users arm, allowing them to use a vortex core energy feedback, to parry, reflect, and even empower projectile attack. Rumors that it runs on the users blood are unconfirmed"
+	name = "vortex feedback arm"
+	desc = "A modification to a users arm, allowing them to use a vortex core energy feedback, to parry, reflect, and even empower projectile attacks. Rumors that it runs on the user's blood are unconfirmed."
 	icon_state = "v1_arm"
 	item_state = "v1_arm"
+	icon = 'icons/obj/items.dmi'
 	sprite_sheets_inhand = list("Drask" = 'icons/mob/clothing/species/drask/held.dmi', "Vox" = 'icons/mob/clothing/species/vox/held.dmi')
 	force = 20 //bonk, not sharp
 	attack_verb = list("slamed", "punched", "parried", "judged", "styled on", "disrespected", "interrupted", "gored")
@@ -475,6 +495,7 @@
 	light_range = 0
 	light_color = "#9933ff"
 	hit_reaction_chance = -1
+	flags = ABSTRACT
 	/// The damage the reflected projectile will be increased by
 	var/reflect_damage_boost = 10
 	/// The cap of the reflected damage. Damage will not be increased above 50, however it will not be reduced to 50 either.
@@ -482,6 +503,8 @@
 	var/disabled = FALSE
 	var/force_when_disabled = 5 //still basically a metal pipe, just hard to move
 
+/obj/item/shield/v1_arm/customised_abstract_text(mob/living/carbon/owner)
+	return "<span class='warning'>[owner.p_their(TRUE)] [owner.l_hand == src ? "left arm" : "right arm"] is covered in metal.</span>"
 
 /obj/item/shield/v1_arm/emp_act(severity)
 	if(disabled)
@@ -558,3 +581,32 @@
 		qdel(src)
 		qdel(I)
 	return ..()
+
+/obj/item/organ/internal/cyberimp/arm/muscle
+	name = "strong-arm empowered musculature implant"
+	desc = "When implanted, this cybernetic implant will enhance the muscles of the arm to deliver more power-per-action. Only has to be installed in one arm."
+	icon_state = "muscle_imp"
+
+	parent_organ = "l_arm" //Left arm by default
+	slot = "l_arm_device"
+
+	actions_types = list()
+	var/datum/martial_art/muscle_implant/muscle_implant
+
+/obj/item/organ/internal/cyberimp/arm/muscle/Initialize()
+	. = ..()
+	muscle_implant = new()
+
+/obj/item/organ/internal/cyberimp/arm/muscle/insert(mob/living/carbon/M, special, dont_remove_slot)
+	. = ..()
+	muscle_implant.teach(M, TRUE)
+
+/obj/item/organ/internal/cyberimp/arm/muscle/remove(mob/living/carbon/M, special)
+	. = ..()
+	muscle_implant.remove(M)
+
+/obj/item/organ/internal/cyberimp/arm/muscle/emp_act(severity)
+	. = ..()
+	if(emp_proof)
+		return
+	muscle_implant.emp_act(severity, owner)

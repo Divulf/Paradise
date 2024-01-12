@@ -22,8 +22,10 @@
 	var/one_use = FALSE // Does this portal go away after one teleport?
 	/// The time after which the effects should play again. Too many effects can lag the server
 	var/effect_cooldown = 0
+	///Whether or not portal use will cause sparks
+	var/create_sparks = TRUE
 
-/obj/effect/portal/New(loc, turf/_target, obj/creation_object = null, lifespan = 300, mob/creation_mob = null)
+/obj/effect/portal/New(loc, turf/_target, obj/creation_object = null, lifespan = 300, mob/creation_mob = null, create_sparks = TRUE)
 	..()
 
 	GLOB.portals += src
@@ -44,7 +46,8 @@
 	if(!QDELETED(O))
 		O.portal_destroyed(src)
 	target = null
-	do_sparks(5, 0, loc)
+	if(create_sparks)
+		do_sparks(5, 0, loc)
 	return ..()
 
 /obj/effect/portal/singularity_pull()
@@ -142,7 +145,8 @@
 
 /obj/effect/portal/proc/invalid_teleport()
 	visible_message("<span class='warning'>[src] flickers and fails due to bluespace interference!</span>")
-	do_sparks(5, 0, loc)
+	if(create_sparks)
+		do_sparks(5, 0, loc)
 	qdel(src)
 
 #define UNSTABLE_TIME_DELAY 2 SECONDS
@@ -183,8 +187,8 @@
 
 #undef UNSTABLE_TIME_DELAY
 
-/obj/effect/portal/redspace
-	name = "redspace portal"
+/obj/effect/portal/advanced
+	name = "advanced portal"
 	desc = "A portal capable of bypassing bluespace interference."
 	icon_state = "portal1"
 	failchance = 0

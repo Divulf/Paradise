@@ -66,7 +66,7 @@
 	return
 
 /obj/item/storage/fancy/donut_box/decompile_act(obj/item/matter_decompiler/C, mob/user)
-	if(!length(contents))
+	if(isdrone(user) && !length(contents))
 		C.stored_comms["wood"] += 1
 		qdel(src)
 		return TRUE
@@ -101,7 +101,7 @@
 	item_state = "candlebox5"
 	storage_slots = 5
 	throwforce = 2
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 
 
 /obj/item/storage/fancy/candle_box/full/populate_contents()
@@ -161,6 +161,47 @@
 				return
 	..()
 
+/*
+ * Matches Box
+ */
+
+/obj/item/storage/fancy/matches
+	name = "matchbox"
+	desc = "A small box of Almost But Not Quite Plasma Premium Matches."
+	icon = 'icons/obj/cigarettes.dmi'
+	icon_state = "matchbox"
+	item_state = "matchbox"
+	base_icon_state = "matchbox"
+	storage_slots = 10
+	w_class = WEIGHT_CLASS_TINY
+	max_w_class = WEIGHT_CLASS_TINY
+	slot_flags = SLOT_FLAG_BELT
+	drop_sound = 'sound/items/handling/matchbox_drop.ogg'
+	pickup_sound =  'sound/items/handling/matchbox_pickup.ogg'
+	can_hold = list(/obj/item/match)
+
+/obj/item/storage/fancy/matches/populate_contents()
+	for(var/I in 1 to storage_slots)
+		new /obj/item/match(src)
+
+/obj/item/storage/fancy/matches/attackby(obj/item/match/W, mob/user, params)
+	if(istype(W, /obj/item/match) && !W.lit)
+		W.matchignite()
+		playsound(user.loc, 'sound/goonstation/misc/matchstick_light.ogg', 50, TRUE)
+	return
+
+/obj/item/storage/fancy/matches/update_icon_state()
+	. = ..()
+	switch(length(contents))
+		if(10)
+			icon_state = base_icon_state
+		if(5 to 9)
+			icon_state = "[base_icon_state]_almostfull"
+		if(1 to 4)
+			icon_state = "[base_icon_state]_almostempty"
+		if(0)
+			icon_state = "[base_icon_state]_e"
+
 ////////////
 //CIG PACK//
 ////////////
@@ -173,7 +214,7 @@
 	belt_icon = "patch_pack"
 	w_class = WEIGHT_CLASS_SMALL
 	throwforce = 2
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 	storage_slots = 6
 	max_combined_w_class = 6
 	can_hold = list(/obj/item/clothing/mask/cigarette,
@@ -202,7 +243,7 @@
 			var/obj/item/I = contents[num]
 			if(istype(I, /obj/item/clothing/mask/cigarette))
 				var/obj/item/clothing/mask/cigarette/C = I
-				user.equip_to_slot_if_possible(C, slot_wear_mask)
+				user.equip_to_slot_if_possible(C, SLOT_HUD_WEAR_MASK)
 				to_chat(user, "<span class='notice'>You take \a [C.name] out of the pack.</span>")
 				update_icon()
 				got_cig = 1
@@ -229,7 +270,7 @@
 	. = ..()
 
 /obj/item/storage/fancy/cigarettes/decompile_act(obj/item/matter_decompiler/C, mob/user)
-	if(!length(contents))
+	if(isdrone(user) && !length(contents))
 		C.stored_comms["wood"] += 1
 		qdel(src)
 		return TRUE
@@ -381,6 +422,19 @@
 			. += "cover"
 	else
 		. += "ledb"
+
+/obj/item/storage/lockbox/vials/AltClick(mob/user)
+	if(!Adjacent(user))
+		return
+	if(broken)
+		to_chat(user, "<span class='warning'>It appears to be broken.</span>")
+		return
+	if(allowed(user))
+		locked = !locked
+		to_chat(user, "<span class='notice'>You [locked ? "lock" : "unlock"] [src].</span>")
+		update_icon()
+	else
+		to_chat(user, "<span class='warning'>Access denied.</span>")
 
 /obj/item/storage/lockbox/vials/attackby(obj/item/I, mob/user, params)
 	..()

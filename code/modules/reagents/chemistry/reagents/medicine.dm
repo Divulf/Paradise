@@ -122,24 +122,25 @@
 	heart_rate_decrease = 1
 	taste_description = "a safe refuge"
 
+/datum/reagent/medicine/cryoxadone/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume, show_message = TRUE)
+	if(iscarbon(M))
+		if(method == REAGENT_INGEST && M.bodytemperature < TCRYO)
+			data = "Ingested"
+			if(show_message)
+				to_chat(M, "<span class='warning'>[src] freezes solid as it enters your body!</span>") //Burn damage already happens on ingesting
+	..()
+
 /datum/reagent/medicine/cryoxadone/on_mob_life(mob/living/M)
 	var/update_flags = STATUS_UPDATE_NONE
-
-	var/external_temp
-	if(istype(M.loc, /obj/machinery/atmospherics/unary/cryo_cell))
-		var/obj/machinery/atmospherics/unary/cryo_cell/C = M.loc
-		external_temp = C.air_contents.temperature
-	else
-		var/turf/T = get_turf(M)
-		external_temp = T.temperature
-
-	if(external_temp < TCRYO)
+	if(M.bodytemperature < TCRYO && data != "Ingested")
 		update_flags |= M.adjustCloneLoss(-4, FALSE)
 		update_flags |= M.adjustOxyLoss(-10, FALSE)
 		update_flags |= M.adjustToxLoss(-3, FALSE)
 		update_flags |= M.adjustBruteLoss(-12, FALSE)
 		update_flags |= M.adjustFireLoss(-12, FALSE)
-
+		M.Stun(4 SECONDS) //You freeze up, but get good healing. Stops use as a combat drug, or for meming on blobs in space.
+		if(M.stat == CONSCIOUS && prob(25)) //So people know what is going on outside cryo tubes, in the event someone weaponises this.
+			to_chat(M, "<span class='warning'>Your veins and muscles are freezing!</span>")
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
 			var/obj/item/organ/external/head/head = H.get_organ("head")
@@ -358,6 +359,9 @@
 	return ..() | update_flags
 
 /datum/reagent/medicine/omnizine/overdose_process(mob/living/M, severity)
+	if(HAS_TRAIT(M, TRAIT_BADASS))
+		return list(0, STATUS_UPDATE_NONE)
+
 	var/list/overdose_info = ..()
 	var/effect = overdose_info[REAGENT_OVERDOSE_EFFECT]
 	var/update_flags = overdose_info[REAGENT_OVERDOSE_FLAGS]
@@ -536,9 +540,6 @@
 	color = "#C8A5DC"
 	metabolization_rate = 0.3
 	overdose_threshold = 35
-	addiction_chance = 1
-	addiction_chance = 10
-	addiction_threshold = 10
 	harmless = FALSE
 	taste_description = "stimulation"
 
@@ -592,6 +593,8 @@
 	color = "#5BCBE1"
 	addiction_chance = 1
 	addiction_threshold = 10
+	allowed_overdose_process = TRUE
+	overdose_threshold = 35
 	harmless = FALSE
 	taste_description = "antihistamine"
 
@@ -606,6 +609,44 @@
 		M.AdjustDrowsy(2 SECONDS)
 		M.visible_message("<span class='notice'>[M] looks a bit dazed.</span>")
 	return ..()
+
+/datum/reagent/medicine/diphenhydramine/overdose_process(mob/living/M, severity)
+	var/list/overdose_info = ..()
+	var/effect = overdose_info[REAGENT_OVERDOSE_EFFECT]
+	var/update_flags = overdose_info[REAGENT_OVERDOSE_FLAGS]
+	if(severity == 1)
+		if(effect <= 2)
+			to_chat(M, "<span class='warning'>You feel parched.</span>")
+		else if(effect <= 3)
+			to_chat(M, "<span class='warning'>You feel a little off.</span>")
+			M.Dizzy(10 SECONDS)
+		else if(effect <= 5)
+			to_chat(M, "<span class='warning'>You feel a sudden head rush.</span>")
+			M.emote("faint")
+		else if(effect <= 8)
+			M.Druggy(30 SECONDS)
+
+	else if(severity == 2)
+		if(effect <= 15)
+			M.AdjustHallucinate(30 SECONDS)
+		if(effect <= 4)
+			M.visible_message("<span class='warning'>[M] suddenly and violently vomits!</span>")
+			if(ishuman(M))
+				var/mob/living/carbon/human/H = M
+				H.vomit(20)
+		else if(effect <= 10)
+			M.visible_message(
+				"<span class'warning'>[M] seems to be itching themselves incessantly!</span>",
+				"<span class='danger'>You feel bugs crawling under your skin!</span>"
+			)
+			M.emote("scream")
+		else if(effect <= 15)
+			to_chat(M, "<span class='warning'>You feel a wave of drowsiness wash over you.</span>")
+			M.SetSleeping(5 SECONDS)
+		else if(effect <= 20)
+			to_chat(M, "<span class='warning'>Something doesn't feel quite right!</span>")
+			M.Druggy(30 SECONDS)
+	return list(effect, update_flags)
 
 /datum/reagent/medicine/morphine
 	name = "Morphine"
@@ -783,7 +824,7 @@
 				if(M.getBruteLoss() + M.getFireLoss() + M.getCloneLoss() >= 150)
 					if(ischangeling(M))
 						return
-					M.delayed_gib()
+					M.delayed_gib(TRUE)
 					return
 				if(!M.ghost_can_reenter())
 					M.visible_message("<span class='warning'>[M] twitches slightly, but is otherwise unresponsive!</span>")
@@ -805,7 +846,7 @@
 							// Per non-vital body part:
 							// 0% chance of necrosis within 1 minute of death
 							// 40% chance of necrosis after 20 minutes of death
-							if(!O.vital && prob(necrosis_prob))
+							if(prob(necrosis_prob) && !O.is_robotic() && !O.vital)
 								// side effects may include: Organ failure
 								O.necrotize(FALSE)
 								if(O.status & ORGAN_DEAD)
@@ -855,7 +896,7 @@
 	if(volume < 20)
 		if(prob(10))
 			to_chat(H, "<span class='warning>You cough up some congealed blood.</span>")
-			H.vomit(blood = TRUE, stun = FALSE) //mostly visual
+			H.vomit(blood = TRUE, should_confuse = FALSE) //mostly visual
 		else if(prob(10))
 			var/overdose_message = pick("Your vision is tinted red for a moment.", "You can hear your heart beating.")
 			to_chat(H, "<span class='warning'>[overdose_message]</span>")
@@ -863,7 +904,7 @@
 		if(prob(10))
 			to_chat(H, "<span class='danger'>You choke on congealed blood!</span>")
 			H.AdjustLoseBreath(2 SECONDS)
-			H.vomit(blood = TRUE, stun = FALSE)
+			H.vomit(blood = TRUE, should_confuse = FALSE)
 		else if(prob(10))
 			var/overdose_message = pick("You're seeing red!", "Your heartbeat thunders in your ears!", "Your veins writhe under your skin!")
 			to_chat(H, "<span class='danger'>[overdose_message]</span>")
@@ -961,7 +1002,6 @@
 	description = "An illegal compound that dramatically enhances the body's performance and healing capabilities."
 	color = "#C8A5DC"
 	harmless = FALSE
-	can_synth = FALSE
 	taste_description = "<span class='userdanger'>an unstoppable force</span>"
 
 /datum/reagent/medicine/stimulants/on_mob_life(mob/living/M)
@@ -984,7 +1024,9 @@
 		update_flags |= M.adjustToxLoss(2, FALSE)
 		update_flags |= M.adjustBruteLoss(1, FALSE)
 		if(prob(10))
-			M.Stun(6 SECONDS)
+			to_chat(M, "<span class='userdanger'>It feels like every single one of your muscles is cramping at once!</span>")
+			M.emote("scream")
+			M.Weaken(6 SECONDS)
 
 	return ..() | update_flags
 
@@ -1001,7 +1043,6 @@
 	metabolization_rate = 0.5 * REAGENTS_METABOLISM
 	overdose_threshold = 60
 	harmless = FALSE
-	can_synth = FALSE
 
 /datum/reagent/medicine/stimulative_agent/on_mob_add(mob/living/L)
 	ADD_TRAIT(L, TRAIT_GOTTAGOFAST, id)
@@ -1163,7 +1204,6 @@
 	description = "Miniature medical robots that swiftly restore bodily damage. May begin to attack their host's cells in high amounts."
 	reagent_state = SOLID
 	color = "#555555"
-	can_synth = FALSE
 	taste_description = "bodily perfection"
 
 /datum/reagent/medicine/syndicate_nanites/on_mob_life(mob/living/M)
@@ -1363,7 +1403,6 @@
 	description = "Highly advanced nanites equipped with an unknown payload designed to repair a body. Nanomachines son."
 	color = "#9b3401"
 	metabolization_rate = 0.5
-	can_synth = FALSE
 	harmless = FALSE
 	taste_description = "2 minutes of suffering"
 	var/list/stimulant_list = list("methamphetamine", "crank", "bath_salts", "stimulative_agent", "stimulants")
@@ -1433,7 +1472,6 @@
 	color = "#C8A5DC" // rgb: 200, 165, 220
 	overdose_threshold = 3 //To prevent people stacking massive amounts of a very strong healing reagent
 	harmless = FALSE
-	can_synth = FALSE
 
 /datum/reagent/medicine/lavaland_extract/on_mob_life(mob/living/carbon/M)
 	var/update_flags = STATUS_UPDATE_NONE

@@ -47,6 +47,8 @@
 
 	var/light_range_on = 1
 	var/light_power_on = 0.5
+	/// Do we drop contents on destroy?
+	var/drop_contents_on_delete = TRUE
 
 /obj/machinery/smartfridge/Initialize(mapload)
 	. = ..()
@@ -92,8 +94,9 @@
 /obj/machinery/smartfridge/Destroy()
 	SStgui.close_uis(wires)
 	QDEL_NULL(wires)
-	for(var/atom/movable/A in contents)
-		A.forceMove(loc)
+	if(drop_contents_on_delete)
+		for(var/atom/movable/A in contents)
+			A.forceMove(loc)
 	return ..()
 
 /obj/machinery/smartfridge/process()
@@ -158,8 +161,6 @@
 
 /obj/machinery/smartfridge/wrench_act(mob/living/user, obj/item/I)
 	. = default_unfasten_wrench(user, I, time = 4 SECONDS)
-	if(.)
-		power_change()
 
 /obj/machinery/smartfridge/crowbar_act(mob/living/user, obj/item/I)
 	. = default_deconstruction_crowbar(user, I)
@@ -188,8 +189,8 @@
 		user.visible_message("<span class='notice'>[user] has added \the [O] to \the [src].</span>", "<span class='notice'>You add \the [O] to \the [src].</span>")
 		SStgui.update_uis(src)
 		update_icon(UPDATE_OVERLAYS)
-	else if(istype(O, /obj/item/storage/bag))
-		var/obj/item/storage/bag/P = O
+	else if(istype(O, /obj/item/storage/bag) || istype(O, /obj/item/storage/box))
+		var/obj/item/storage/P = O
 		var/items_loaded = 0
 		for(var/obj/G in P.contents)
 			if(load(G, user))
@@ -529,6 +530,9 @@
 /obj/machinery/smartfridge/secure/circuits/aiupload/Initialize(mapload)
 	. = ..()
 	req_access_txt = "[ACCESS_AI_UPLOAD]"
+	if(mapload && HAS_TRAIT(SSstation, STATION_TRAIT_UNIQUE_AI) && is_station_level(z))
+		drop_contents_on_delete = FALSE
+		return INITIALIZE_HINT_QDEL
 
 /obj/machinery/smartfridge/secure/circuits/aiupload/experimental
 	name = "\improper Experimental Laws Storage"
@@ -580,7 +584,9 @@
 		/obj/item/reagent_containers/iv_bag,
 		/obj/item/reagent_containers/applicator,
 		/obj/item/storage/pill_bottle,
-		/obj/item/reagent_containers/food/pill,
+		/obj/item/reagent_containers/pill,
+		/obj/item/reagent_containers/patch,
+		/obj/item/stack/medical
 	))
 
 /**
@@ -619,7 +625,9 @@
 		/obj/item/reagent_containers/iv_bag,
 		/obj/item/reagent_containers/applicator,
 		/obj/item/storage/pill_bottle,
-		/obj/item/reagent_containers/food/pill,
+		/obj/item/reagent_containers/pill,
+		/obj/item/reagent_containers/patch,
+		/obj/item/stack/medical
 	))
 
 /**
@@ -652,8 +660,8 @@
 
 /obj/machinery/smartfridge/secure/chemistry/preloaded/Initialize(mapload)
 	starting_items = list(
-		/obj/item/reagent_containers/food/pill/epinephrine = 12,
-		/obj/item/reagent_containers/food/pill/charcoal = 5,
+		/obj/item/reagent_containers/pill/epinephrine = 12,
+		/obj/item/reagent_containers/pill/charcoal = 5,
 		/obj/item/reagent_containers/glass/bottle/epinephrine = 1,
 		/obj/item/reagent_containers/glass/bottle/charcoal = 1,
 	)
@@ -809,8 +817,7 @@
 	desc = "A wooden contraption, used to dry plant products, food and leather."
 	icon = 'icons/obj/hydroponics/equipment.dmi'
 	icon_state = "drying_rack"
-	idle_power_consumption = 5
-	active_power_consumption = 200
+	requires_power = FALSE
 	can_dry = TRUE
 	visible_contents = FALSE
 	light_range_on = null
@@ -836,14 +843,6 @@
 /obj/machinery/smartfridge/drying_rack/RefreshParts()
 	return
 
-/obj/machinery/smartfridge/drying_rack/power_change()
-	if(has_power() && anchored)
-		stat &= ~NOPOWER
-	else
-		stat |= NOPOWER
-		toggle_drying(TRUE)
-	update_icon(UPDATE_OVERLAYS)
-
 /obj/machinery/smartfridge/drying_rack/screwdriver_act(mob/living/user, obj/item/I)
 	return
 
@@ -866,13 +865,9 @@
 	switch(action)
 		if("drying")
 			drying = !drying
-			change_power_mode(drying ? ACTIVE_POWER_USE : IDLE_POWER_USE)
 			update_icon(UPDATE_OVERLAYS)
 
 /obj/machinery/smartfridge/drying_rack/update_overlays()
-	if(stat & NOPOWER)
-		. += "drying_rack_off"
-		return
 	if(drying)
 		. += "drying_rack_drying"
 	if(length(contents))
@@ -900,10 +895,8 @@
 /obj/machinery/smartfridge/drying_rack/proc/toggle_drying(forceoff)
 	if(drying || forceoff)
 		drying = FALSE
-		change_power_mode(IDLE_POWER_USE)
 	else
 		drying = TRUE
-		change_power_mode(ACTIVE_POWER_USE)
 	update_icon(UPDATE_OVERLAYS)
 
 /**

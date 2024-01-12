@@ -42,9 +42,9 @@
 	protected_jobs = list("Captain")
 	location_override = "the Captain's Office"
 
-/datum/theft_objective/captains_jetpack
-	name = "the captain's deluxe jetpack"
-	typepath = /obj/item/tank/jetpack/oxygen/captain
+/datum/theft_objective/captains_modsuit
+	name = "the captain's Magnate MODsuit"
+	typepath = /obj/item/mod/control/pre_equipped/magnate
 	protected_jobs = list("Captain")
 	location_override = "the Captain's Office"
 
@@ -65,18 +65,6 @@
 	typepath = /obj/item/hand_tele
 	protected_jobs = list("Captain", "Research Director", "Chief Engineer")
 	location_override = "Teleporter"
-
-/datum/theft_objective/ai
-	name = "a functional AI"
-	typepath = /obj/item/aicard
-	location_override = "AI Satellite. An intellicard for transportation can be found in Tech Storage, Science Department or manufactured"
-
-/datum/theft_objective/ai/check_special_completion(obj/item/aicard/C)
-	if(..())
-		for(var/mob/living/silicon/ai/A in C)
-			if(isAI(A) && A.stat != 2) //See if any AI's are alive inside that card.
-				return 1
-	return 0
 
 /datum/theft_objective/defib
 	name = "the chief medical officer's advanced compact defibrillator"
@@ -128,6 +116,8 @@
 	name = "any set of secret documents of any organization"
 	typepath = /obj/item/documents //Any set of secret documents. Doesn't have to be NT's
 	location_override = "the Vault"
+	protected_jobs = list("Quartermaster")
+	job_possession = FALSE
 
 /datum/theft_objective/hypospray
 	name = "the chief medical officer's advanced hypospray"
@@ -157,6 +147,8 @@
 	typepath = /obj/item/nuke_core/plutonium
 	location_override = "the Vault. You can use the box and instructions provided to remove the core, with some extra tools"
 	special_equipment = /obj/item/storage/box/syndie_kit/nuke
+	protected_jobs = list("Quartermaster")
+	job_possession = FALSE
 
 /datum/theft_objective/number
 	var/min=0

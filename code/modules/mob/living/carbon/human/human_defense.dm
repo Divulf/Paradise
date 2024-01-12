@@ -528,7 +528,7 @@ emp_act
 							KnockDown(10 SECONDS)
 							AdjustConfused(30 SECONDS)
 						if(mind && prob(I.force + ((100 - health) / 2)) && src != user && I.damtype == BRUTE)
-							SSticker.mode.remove_revolutionary(mind)
+							SSticker.mode.remove_revolutionary(mind, activate_protection = TRUE)
 
 					if(bloody)//Apply blood
 						if(wear_mask)
@@ -578,7 +578,6 @@ emp_act
 		if(((throwingdatum ? throwingdatum.speed : I.throw_speed) >= EMBED_THROWSPEED_THRESHOLD) || I.embedded_ignore_throwspeed_threshold)
 			if(can_embed(I))
 				if(prob(I.embed_chance) && !HAS_TRAIT(src, TRAIT_PIERCEIMMUNE))
-					throw_alert("embeddedobject", /obj/screen/alert/embeddedobject)
 					var/obj/item/organ/external/L = pick(bodyparts)
 					L.add_embedded_object(I)
 					I.add_mob_blood(src)//it embedded itself in you, of course it's bloody!
@@ -747,15 +746,29 @@ emp_act
 
 /mob/living/carbon/human/experience_pressure_difference(pressure_difference, direction)
 	playsound(src, 'sound/effects/space_wind.ogg', 50, TRUE)
-	if(shoes && isclothing(shoes))
-		var/obj/item/clothing/S = shoes
-		if (S.flags & NOSLIP)
-			return FALSE
+	if(HAS_TRAIT(src, TRAIT_NOSLIP))
+		return FALSE
 	return ..()
 
 /mob/living/carbon/human/water_act(volume, temperature, source, method = REAGENT_TOUCH)
 	. = ..()
 	dna.species.water_act(src, volume, temperature, source, method)
+	if(method != REAGENT_TOUCH)
+		return
+
+	for(var/obj/O in list(head, wear_suit, back, l_hand, r_hand))
+		O.water_act(volume, temperature, source, method)
+	if((head?.flags & THICKMATERIAL) && (wear_suit?.flags & THICKMATERIAL)) // fully pierce proof clothing is also water proof!
+		return
+	for(var/obj/O in list(w_uniform, shoes, belt, gloves, glasses, l_ear, r_ear, wear_id, wear_pda, r_store, l_store, s_store))
+		O.water_act(volume, temperature, source, method)
+
+
+
+/mob/living/carbon/human/attackby(obj/item/I, mob/user, params)
+	if(SEND_SIGNAL(src, COMSIG_HUMAN_ATTACKED, user) & COMPONENT_CANCEL_ATTACK_CHAIN)
+		return TRUE
+	return ..()
 
 /mob/living/carbon/human/is_eyes_covered(check_glasses = TRUE, check_head = TRUE, check_mask = TRUE)
 	if(check_glasses && glasses && (glasses.flags_cover & GLASSESCOVERSEYES))

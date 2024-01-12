@@ -103,7 +103,7 @@
 	taste_description = "<span class='warning'>blood</span>"
 	taste_mult = 1.3
 
-/datum/reagent/blood/reaction_mob(mob/living/M, method=REAGENT_TOUCH, volume)
+/datum/reagent/blood/reaction_mob(mob/living/M, method = REAGENT_TOUCH, volume)
 	if(data && data["viruses"])
 		for(var/thing in data["viruses"])
 			var/datum/disease/D = thing
@@ -120,6 +120,7 @@
 		var/mob/living/carbon/C = M
 		if(C.mind?.has_antag_datum(/datum/antagonist/vampire))
 			C.set_nutrition(min(NUTRITION_LEVEL_WELL_FED, C.nutrition + 10))
+			C.blood_volume = min(C.blood_volume + round(volume, 0.1), BLOOD_VOLUME_NORMAL)
 	..()
 
 /datum/reagent/blood/on_new(list/data)
@@ -214,18 +215,21 @@
 	reagent_state = LIQUID
 	color = "#757547"
 	taste_description = "puke"
+	harmless = FALSE
 
 /datum/reagent/fishwater/reaction_mob(mob/living/M, method=REAGENT_TOUCH, volume)
 	if(method == REAGENT_INGEST)
 		to_chat(M, "Oh god, why did you drink that?")
 
 /datum/reagent/fishwater/on_mob_life(mob/living/M)
+	var/update_flags = STATUS_UPDATE_NONE
 	if(prob(30))		// Nasty, you drank this stuff? 30% chance of the fakevomit (non-stunning version)
 		if(prob(50))	// 50/50 chance of green vomit vs normal vomit
 			M.fakevomit(1)
 		else
 			M.fakevomit(0)
-	return ..()
+	update_flags |= M.adjustToxLoss(1 * REAGENTS_EFFECT_MULTIPLIER, FALSE)
+	return ..() | update_flags
 
 /datum/reagent/fishwater/toiletwater
 	name = "Toilet Water"
@@ -395,7 +399,6 @@
 	description = "YOUR FLESH! IT BURNS!"
 	process_flags = ORGANIC | SYNTHETIC		//Admin-bus has no brakes! KILL THEM ALL.
 	metabolization_rate = 1
-	can_synth = FALSE
 	taste_description = "burning"
 
 /datum/reagent/hellwater/on_mob_life(mob/living/M)
@@ -445,3 +448,11 @@
 		var/t_loc = get_turf(O)
 		qdel(O)
 		new /obj/item/clothing/shoes/galoshes/dry(t_loc)
+
+/datum/reagent/saturated_activated_charcoal
+	name = "Saturated activated charcoal"
+	id = "saturated_charcoal"
+	description = "Charcoal that is completely saturated with various toxins. Useless."
+	reagent_state = LIQUID
+	color = "#29262b"
+	taste_description = "burnt dirt"

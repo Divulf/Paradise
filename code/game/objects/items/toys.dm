@@ -176,6 +176,9 @@
 /obj/item/toy/sword
 	name = "toy sword"
 	desc = "A cheap, plastic replica of an energy sword. Realistic sounds! Ages 8 and up."
+	icon = 'icons/obj/energy_melee.dmi'
+	lefthand_file = 'icons/mob/inhands/weapons_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/weapons_righthand.dmi'
 	icon_state = "sword0"
 	item_state = "sword0"
 	var/active = FALSE
@@ -216,7 +219,7 @@
 			to_chat(user, "<span class='notice'>\the [flags & NODROP ? src : W] is stuck to your hand, you can't attach it to \the [flags & NODROP ? W : src]!</span>")
 		else
 			to_chat(user, "<span class='notice'>You attach the ends of the two plastic swords, making a single double-bladed toy! You're fake-cool.</span>")
-			new /obj/item/twohanded/dualsaber/toy(user.loc)
+			new /obj/item/dualsaber/toy(user.loc)
 			user.unEquip(W)
 			user.unEquip(src)
 			qdel(W)
@@ -225,35 +228,39 @@
 /*
  * Subtype of Double-Bladed Energy Swords
  */
-/obj/item/twohanded/dualsaber/toy
+/obj/item/dualsaber/toy
 	name = "double-bladed toy sword"
 	desc = "A cheap, plastic replica of TWO energy swords.  Double the fun!"
 	force = 0
 	throwforce = 0
 	throw_speed = 3
 	throw_range = 5
-	force_unwielded = 0
-	force_wielded = 0
 	origin_tech = null
 	attack_verb = list("attacked", "struck", "hit")
 	brightness_on = 0
-	sharp_when_wielded = FALSE // It's a toy
 	needs_permit = FALSE
 
-/obj/item/twohanded/dualsaber/toy/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
+/obj/item/dualsaber/toy/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/two_handed, only_sharp_when_wielded = FALSE, force_wielded = 0, force_unwielded = 0)
+
+/obj/item/dualsaber/toy/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
 	return 0
 
-/obj/item/twohanded/dualsaber/toy/IsReflect()
-	if(wielded)
+/obj/item/dualsaber/toy/IsReflect()
+	if(HAS_TRAIT(src, TRAIT_WIELDED))
 		return 2
 
 /obj/item/toy/katana
 	name = "replica katana"
 	desc = "Woefully underpowered in D20."
+	lefthand_file = 'icons/mob/inhands/weapons_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/weapons_righthand.dmi'
 	icon_state = "katana"
 	item_state = "katana"
 	flags = CONDUCT
-	slot_flags = SLOT_BELT | SLOT_BACK
+	slot_flags = SLOT_FLAG_BELT | SLOT_FLAG_BACK
+	flags_2 = ALLOW_BELT_NO_JUMPSUIT_2 //Look, you can strap it to your back. You can strap it to your waist too.
 	force = 5
 	throwforce = 5
 	w_class = WEIGHT_CLASS_NORMAL
@@ -424,7 +431,7 @@
 	desc = "This baby looks almost real. Wait, did it just burp?"
 	force = 5
 	w_class = WEIGHT_CLASS_BULKY
-	slot_flags = SLOT_BACK
+	slot_flags = SLOT_FLAG_BACK
 
 
 //This should really be somewhere else but I don't know where. w/e
@@ -435,7 +442,8 @@
 	icon_state = "inflatable"
 	item_state = "inflatable"
 	icon = 'icons/obj/clothing/belts.dmi'
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
+	flags_2 = ALLOW_BELT_NO_JUMPSUIT_2
 
 /*
  * Fake meteor
@@ -550,7 +558,7 @@
 
 /obj/item/toy/plushie/Destroy()
 	QDEL_NULL(grenade)
-	..()
+	return ..()
 
 /obj/item/toy/plushie/attackby(obj/item/I, mob/living/user, params)
 	if(I.sharp)
@@ -593,6 +601,19 @@
 
 /obj/random/plushie/item_to_spawn()
 	return pick(subtypesof(/obj/item/toy/plushie) - typesof(/obj/item/toy/plushie/fluff) - typesof(/obj/item/toy/plushie/carpplushie)) //exclude the base type.
+
+/obj/random/plushie/explosive
+	var/explosive_chance = 1 // 1% to spawn a blahbomb!
+
+/obj/random/plushie/explosive/spawn_item()
+	var/obj/item/toy/plushie/plushie = ..()
+	if(!prob(explosive_chance))
+		return plushie
+	var/obj/item/I = new /obj/item/grenade/syndieminibomb
+	plushie.has_stuffing = FALSE
+	plushie.grenade = I
+	I.forceMove(plushie)
+	return plushie
 
 /obj/item/toy/plushie/corgi
 	name = "corgi plushie"
@@ -843,6 +864,8 @@
 	desc = "it says \"Sternside Changs #1 fan\" on it. "
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "foamblade"
+	lefthand_file = 'icons/mob/inhands/weapons_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/weapons_righthand.dmi'
 	item_state = "arm_blade"
 	attack_verb = list("pricked", "absorbed", "gored")
 	w_class = WEIGHT_CLASS_SMALL
@@ -1011,22 +1034,8 @@
 	name = "Lich Miniature"
 	desc = "Murderboner extraordinaire."
 	icon_state = "lichcharacter"
-/obj/item/storage/box/characters
-	name = "Box of Miniatures"
-	desc = "The nerd's best friends."
-	icon_state = "box"
-/obj/item/storage/box/characters/populate_contents()
-	new /obj/item/toy/character/alien(src)
-	new /obj/item/toy/character/cleric(src)
-	new /obj/item/toy/character/warrior(src)
-	new /obj/item/toy/character/thief(src)
-	new /obj/item/toy/character/wizard(src)
-	new /obj/item/toy/character/cthulhu(src)
-	new /obj/item/toy/character/lich(src)
 
-
-//Pet Rocks, just like from the 70's!
-
+// Pet Rocks, just like from the 70's!
 /obj/item/toy/pet_rock
 	name = "pet rock"
 	desc = "The perfect pet!"
@@ -1048,8 +1057,7 @@
 	desc = "Roxie, the bestest girl pet in the whole wide universe!"
 	icon_state = "roxie"
 
-//minigibber, so cute
-
+// Minigibber, so cute
 /obj/item/toy/minigibber
 	name = "miniature gibber"
 	desc = "A miniature recreation of Nanotrasen's famous meat grinder."
@@ -1098,7 +1106,7 @@
 	righthand_file = 'icons/mob/inhands/guns_righthand.dmi'
 	hitsound = "swing_hit"
 	flags =  CONDUCT
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 	materials = list(MAT_METAL=2000)
 	w_class = WEIGHT_CLASS_NORMAL
 	throwforce = 5
@@ -1161,6 +1169,8 @@
 		user.apply_damage(300, BRUTE, zone, sharp = TRUE, used_weapon = "Self-inflicted gunshot wound to the [zone].")
 		user.bleed(BLOOD_VOLUME_NORMAL)
 		user.death() // Just in case
+		if(SSticker.mode.tdm_gamemode)
+			SSblackbox.record_feedback("nested tally", "TDM_quitouts", 1, list(SSticker.mode.name, "TDM Revolver Suicide"))
 		return TRUE
 	else
 		to_chat(user, "<span class='warning'>[src] needs to be reloaded.</span>")
@@ -1183,23 +1193,18 @@
 	. += "Has [fake_bullets] round\s remaining."
 	. += "<span class='info'>Use in hand to empty the gun's ammo reserves.</span>"
 	. += "[fake_bullets] of those are live rounds."
+	. += "<span class='notice'>You can <b>Alt-Click</b> [src] to spin it's barrel.</span>"
 
 /obj/item/toy/russian_revolver/trick_revolver/post_shot(user)
 	to_chat(user, "<span class='danger'>[src] did look pretty dodgey!</span>")
 	SEND_SOUND(user, sound('sound/misc/sadtrombone.ogg')) //HONK
 
-/obj/item/toy/russian_revolver/trick_revolver/verb/trick_spin()
-	set name = "Spin Chamber"
-	set category = "Object"
-	set desc = "Click to spin your revolver's chamber."
-
-	var/mob/M = usr
-
-	if(M.stat || !in_range(M, src))
+/obj/item/toy/russian_revolver/trick_revolver/AltClick(mob/user)
+	if(user.stat || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !Adjacent(user))
 		return
 
-	to_chat(M, "<span class='warning'>You go to spin the chamber... and it goes off in your face!</span>")
-	shoot_gun(M)
+	to_chat(user, "<span class='warning'>You go to spin the chamber... and it goes off in your face!</span>")
+	shoot_gun(user)
 
 /obj/item/toy/russian_revolver/trick_revolver/attack_self(mob/user)
 	if(!bullets_left) //You can re-arm the trap...
@@ -1224,22 +1229,26 @@
 /*
  * Rubber Chainsaw
  */
-/obj/item/twohanded/toy/chainsaw
+/obj/item/toy/chainsaw
 	name = "Toy Chainsaw"
-	desc = "A toy chainsaw with a rubber edge. Ages 8 and up"
+	desc = "A toy chainsaw with a rubber edge. Ages 8 and up."
+	lefthand_file = 'icons/mob/inhands/weapons_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/weapons_righthand.dmi'
 	icon_state = "chainsaw0"
+	base_icon_state = "chainsaw"
 	force = 0
 	throwforce = 0
 	throw_speed = 4
 	throw_range = 20
-	wieldsound = 'sound/weapons/chainsawstart.ogg'
 	attack_verb = list("sawed", "cut", "hacked", "carved", "cleaved", "butchered", "felled", "timbered")
 
-/obj/item/twohanded/toy/chainsaw/update_icon_state()
-	if(wielded)
-		icon_state = "chainsaw[wielded]"
-	else
-		icon_state = "chainsaw0"
+/obj/item/toy/chainsaw/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/two_handed, wieldsound = 'sound/weapons/chainsawstart.ogg', icon_wielded = "[base_icon_state]1")
+
+
+/obj/item/toy/chainsaw/update_icon_state()
+	icon_state = "[base_icon_state]0"
 
 /*
  * Cat Toy

@@ -99,56 +99,6 @@
 	else if(!vision || vision.is_broken())   // Vision organs cut out or broken? Permablind.
 		EyeBlind(4 SECONDS)
 
-	if(getBrainLoss() >= 60 && stat != DEAD)
-		if(prob(3))
-			var/list/crazysay = list("IM A [pick("PONY","LIZARD","taJaran","kitty","Vulpakin","drASK","BIRDIE","voxxie","race car","combat meCH","SPESSSHIP")] [pick("NEEEEEEIIIIIIIIIGH","sKREEEEEE","MEOW","NYA~","rawr","Barkbark","Hissssss","vROOOOOM","pewpew","choo Choo")]!",
-							"without oxigen blob don't evoluate?",
-							"CAPTAINS A COMDOM",
-							"[pick("", "that damn traitor")] [pick("joerge", "george", "gorge", "gdoruge")] [pick("mellens", "melons", "mwrlins")] is grifing me HAL;P!!!",
-							"can u give me [pick("telikesis","halk","eppilapse")]?",
-							"THe saiyans screwed",
-							"Bi is THE BEST OF BOTH WORLDS",
-							"I WANNA PET TEH monkeyS",
-							"stop grifing me!!!!",
-							"SOTP IT!",
-							"HALPZ SITCULITY",
-							"VOXES caN't LOVE",
-							"my dad own this station",
-							"the CHef put [pick("PROTEIN", "toiret waTer", "RiPPleing TendIes", "Einzymes","HORRY WALTER","nuTriments","ReActive MutAngen","TeSLium","sKrektonium")] in my [pick("wiSh soup","Bullito","rAingurber","sOilent GREEn","KoI Susishes","yaya")]!",
-							"the monkey have TASER ARMS!",
-							"qM blew my points on [pick("cOMbat Shtogun","inSuLated gloves","LOTS MASSHEEN!")]",
-							"EI'NATH!",
-							"WAKE UP SHEEPLES!",
-							"et wus my [pick("wittle brother!!","fiancee","friend staying over","entiRe orphanage","love interest","wife","husband","liTTle kids","sentient cAT","accidentally")]!",
-							"FUS RO DAH",
-							"fuckin tangerines!!!",
-							"stAT ME",
-							"my FACE",
-							"rOLl it eaSy!",
-							"waaaaaagh!!!",
-							"red wonz go fasta",
-							"FOR TEH EMPRAH",
-							"HAZ A SECURE DAY!!!!",
-							"dem dwarfs man, dem dwarfs",
-							"SPESS MAHREENS",
-							"hwee did eet fhor khayosss",
-							"lifelike texture",
-							"luv can bloooom",
-							"PACKETS!!!",
-							"[pick("WHERE MY","aYE need","giv me my","bath me inn.")] [pick("dermaline","alKkyZine","dylOvene","inAprovaline","biCaridine","Hyperzine","kELotane","lePorazine","bAcch Salts","tricord","clOnexazone","hydroChloric Acid","chlORine Hydrate","paRoxetine")]!",
-							"mALPRACTICEBAY",
-							"I HavE A pe H dee iN ENTerpriSE resOUrCE pLaNNIN",
-							"h-h-HalP MaINT",
-							"dey come, dey COME! DEY COME!!!",
-							"THE END IS NIGH!",
-							"I FOT AND DIED FOR MUH [pick("RITES","FREEDOM","payCHECK","cARGO points","teCH Level","doG","mAPLe syrup","fluffy fWiends","gATEway LoOt")]",
-							"KILL DEM [pick("mainTnacE cHickinNS","kiRA CulwnNES","FLOOR CLUWNEs","MIME ASSASSIN","BOMBING TAJARAN","cC offiser","morPhlings","slinglings")]!",
-							"I CAN FORCE YOU TO SAY WHATEREVE!!?!?!")
-			if(prob(66))
-				say(pick(crazysay))
-			else
-				emote("drool")
-
 /mob/living/carbon/human/handle_mutations_and_radiation()
 	for(var/mutation_type in active_mutations)
 		var/datum/mutation/mutation = GLOB.dna_mutations[mutation_type]
@@ -604,7 +554,7 @@
 
 	if(!check_death_method())
 		if(health <= HEALTH_THRESHOLD_DEAD)
-			var/deathchance = min(99, ((getBrainLoss() * -5) + (health + (getOxyLoss() / 2))) * -0.01)
+			var/deathchance = min(99, ((getBrainLoss() / 5) + (health + (getOxyLoss() / -2))) * -0.1)
 			if(prob(deathchance))
 				death()
 				return
@@ -739,7 +689,7 @@
 		if(getToxLoss() >= 45 && nutrition > 20)
 			lastpuke ++
 			if(lastpuke >= 25) // about 25 second delay I guess
-				vomit(20, 0, 1, 0, 1)
+				vomit(20, 0, TRUE, 0, 1)
 				adjustToxLoss(-3)
 				lastpuke = 0
 
@@ -787,7 +737,7 @@
 				break
 
 	for(var/datum/reagent/R in reagents.reagent_list)//handles different chems' influence on pulse
-		if(R.heart_rate_increase)
+		if(R.has_heart_rate_increase())
 			if(temp <= PULSE_FAST && temp >= PULSE_NONE)
 				temp++
 				break
@@ -858,7 +808,7 @@
 
 				if(heartbeat >= rate)
 					heartbeat = 0
-					src << sound('sound/effects/electheart.ogg',0,0,CHANNEL_HEARTBEAT,30)//Credit to GhostHack (www.ghosthack.de) for sound.
+					SEND_SOUND(src, sound('sound/effects/electheart.ogg', channel = CHANNEL_HEARTBEAT, volume = 30)) // Credit to GhostHack (www.ghosthack.de) for sound.
 
 				else
 					heartbeat++
@@ -876,7 +826,7 @@
 
 			if(heartbeat >= rate)
 				heartbeat = 0
-				src << sound('sound/effects/singlebeat.ogg',0,0,CHANNEL_HEARTBEAT,50)
+				SEND_SOUND(src, sound('sound/effects/singlebeat.ogg', channel = CHANNEL_HEARTBEAT, volume = 50))
 			else
 				heartbeat++
 

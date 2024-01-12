@@ -149,8 +149,8 @@
 	update_icon()
 
 /mob/living/simple_animal/bot/mulebot/emag_act(mob/user)
-	if(emagged < 1)
-		emagged = 1
+	if(!emagged)
+		emagged = TRUE
 	if(!open)
 		locked = !locked
 		to_chat(user, "<span class='notice'>You [locked ? "lock" : "unlock"] [src]'s controls!</span>")
@@ -385,7 +385,7 @@
 	if(istype(AM,/obj/structure/closet/crate))
 		CRATE = AM
 	else
-		if(!wires.is_cut(WIRE_LOADCHECK))
+		if(!wires.is_cut(WIRE_LOADCHECK) && !hijacked)
 			buzz(SIGH)
 			return	// if not hacked, only allow crates to be loaded
 
@@ -457,7 +457,7 @@
 	// with items dropping as mobs are loaded
 
 	for(var/atom/movable/AM in src)
-		if(AM == cell || AM == access_card || AM == Radio || AM == paicard)
+		if(AM == cell || AM == access_card || AM == Radio || AM == paicard || ispulsedemon(AM))
 			continue
 
 		AM.forceMove(loc)
@@ -791,6 +791,8 @@
 
 // player on mulebot attempted to move
 /mob/living/simple_animal/bot/mulebot/relaymove(mob/user)
+	if(ispulsedemon(user))
+		return ..()
 	if(user.incapacitated())
 		return
 	if(load == user)

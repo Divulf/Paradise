@@ -24,11 +24,19 @@ AI MODULES
 
 /obj/item/aiModule/Initialize(mapload)
 	. = ..()
+	if(mapload && HAS_TRAIT(SSstation, STATION_TRAIT_UNIQUE_AI) && is_station_level(z))
+		var/delete_module = handle_unique_ai()
+		if(delete_module)
+			return INITIALIZE_HINT_QDEL
 	if(laws)
 		desc += "<br>"
 		for(var/datum/ai_law/current in laws.inherent_laws)
 			desc += current.law
 			desc += "<br>"
+
+///what this module should do if it is mapload spawning on a unique AI station trait round.
+/obj/item/aiModule/proc/handle_unique_ai()
+	return TRUE // If this returns true, it will be deleted on roundstart
 
 /obj/item/aiModule/proc/install(obj/machinery/computer/C)
 	if(istype(C, /obj/machinery/computer/aiupload))
@@ -110,7 +118,7 @@ AI MODULES
 	..()
 	var/targName = stripped_input(usr, "Please enter the name of the person to safeguard.", "Safeguard who?", user.name)
 	targetName = targName
-	desc = text("A 'safeguard' AI module: 'Safeguard []. Individuals that threaten [] are not crew and must be eliminated.'", targetName, targetName)
+	desc = "A 'safeguard' AI module: 'Safeguard [targetName]. Individuals that threaten [targetName] are not crew and must be eliminated.'"
 
 /obj/item/aiModule/safeguard/install(obj/machinery/computer/C)
 	if(!targetName)
@@ -120,7 +128,7 @@ AI MODULES
 
 /obj/item/aiModule/safeguard/addAdditionalLaws(mob/living/silicon/ai/target, mob/sender)
 	..()
-	var/law = text("Safeguard []. Individuals that threaten [] are not crew and must be eliminated.'", targetName, targetName)
+	var/law = "Safeguard [targetName]. Individuals that threaten [targetName] are not crew and must be eliminated.'"
 	to_chat(target, law)
 	target.add_supplied_law(4, law)
 	GLOB.lawchanges.Add("The law specified [targetName]")
@@ -137,7 +145,7 @@ AI MODULES
 	..()
 	var/targName = stripped_input(usr, "Please enter the name of the person who is the only crew.", "Who?", user.real_name)
 	targetName = targName
-	desc = text("A 'one crew' AI module: 'Only [] is crew.'", targetName)
+	desc = "A 'one crew' AI module: 'Only [targetName] is crew.'"
 
 /obj/item/aiModule/oneCrewMember/install(obj/machinery/computer/C)
 	if(!targetName)
@@ -241,6 +249,9 @@ AI MODULES
 	to_chat(target, "<span class='boldnotice'>[sender.real_name] attempted to reset your laws using a reset module.</span>")
 	target.show_laws()
 
+/obj/item/aiModule/reset/handle_unique_ai()
+	return FALSE
+
 /******************** Purge ********************/
 /obj/item/aiModule/purge // -- TLE
 	name = "\improper Purge AI module"
@@ -287,7 +298,7 @@ AI MODULES
 	origin_tech = "programming=3;materials=4"
 	laws = new /datum/ai_laws/quarantine
 
-/******************** NanoTrasen ********************/
+/******************** Nanotrasen ********************/
 /obj/item/aiModule/nanotrasen // -- TLE
 	name = "\improper NT Default Core AI Module"
 	desc = "An 'NT Default' Core AI Module: 'Reconfigures the AI's core laws.'"
@@ -418,7 +429,7 @@ AI MODULES
 	var/newFreeFormLaw = ""
 	desc = "A hacked AI law module: '<freeform>'"
 	icon_state = "syndicate"
-	origin_tech = "programming=5;materials=5;syndicate=5"
+	origin_tech = "programming=5;materials=5;syndicate=2"
 
 /obj/item/aiModule/syndicate/attack_self(mob/user as mob)
 	..()

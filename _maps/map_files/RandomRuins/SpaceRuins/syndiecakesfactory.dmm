@@ -12,9 +12,7 @@
 	pixel_y = -6;
 	pixel_x = 11
 	},
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
+/turf/simulated/floor/plating,
 /area/ruin/space/unpowered)
 "bk" = (
 /obj/structure/table/glass/reinforced/plastitanium,
@@ -60,11 +58,8 @@
 	},
 /area/ruin/space/unpowered)
 "bG" = (
-/obj/structure/grille,
 /obj/effect/spawner/window/reinforced,
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
+/turf/simulated/floor/plating,
 /area/ruin/space/unpowered)
 "bO" = (
 /obj/effect/decal/cleanable/cobweb,
@@ -228,7 +223,7 @@
 /area/ruin/space/unpowered)
 "hF" = (
 /obj/effect/landmark/damageturf,
-/turf/simulated/floor/engine,
+/turf/simulated/floor/engine/airless,
 /area/ruin/space/unpowered)
 "hH" = (
 /obj/structure/railing/corner,
@@ -303,7 +298,7 @@
 /area/ruin/space/unpowered)
 "ls" = (
 /obj/structure/dispenser/oxygen,
-/turf/simulated/floor/engine,
+/turf/simulated/floor/engine/airless,
 /area/ruin/space/unpowered)
 "lZ" = (
 /turf/simulated/floor/plating/airless,
@@ -316,9 +311,7 @@
 	pixel_x = 6
 	},
 /obj/structure/grille/broken,
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
+/turf/simulated/floor/plating,
 /area/ruin/space/unpowered)
 "mP" = (
 /obj/effect/decal/cleanable/vomit/green,
@@ -402,7 +395,7 @@
 	animal_species = /mob/living/simple_animal/pet/dog;
 	attack_sound = 'sound/weapons/bite.ogg';
 	attacktext = "bites";
-	damage_coeff = list("brute" = 1, "fire" = 1, "tox" = 1, "clone" = 1, "stamina" = 1, "oxy" = 1);
+	damage_coeff = list("brute"=1,"fire"=1,"tox"=1,"clone"=1,"stamina"=1,"oxy"=1);
 	death_sound = null;
 	deathmessage = "";
 	desc = "This is no longer a goodboy. Not anymore. He has seen too much.";
@@ -637,7 +630,7 @@
 /area/ruin/space/unpowered)
 "xy" = (
 /obj/machinery/suit_storage_unit,
-/turf/simulated/floor/engine,
+/turf/simulated/floor/engine/airless,
 /area/ruin/space/unpowered)
 "xO" = (
 /turf/simulated/floor/plasteel{
@@ -682,7 +675,7 @@
 /turf/simulated/floor/engine,
 /area/ruin/space/unpowered)
 "zt" = (
-/turf/simulated/floor/plating/damaged,
+/turf/simulated/floor/plating/damaged/airless,
 /area/ruin/space/unpowered)
 "AP" = (
 /obj/structure/table/reinforced,
@@ -963,6 +956,9 @@
 	icon_state = "dark"
 	},
 /area/ruin/space/unpowered)
+"LN" = (
+/turf/simulated/floor/engine/airless,
+/area/ruin/space/unpowered)
 "LV" = (
 /obj/structure/chair/comfy/black{
 	dir = 8
@@ -1057,13 +1053,6 @@
 	icon_state = "floorgrime"
 	},
 /area/ruin/space/unpowered)
-"OA" = (
-/obj/structure/grille,
-/obj/effect/spawner/window/reinforced,
-/turf/simulated/floor/plasteel{
-	icon_state = "cafeteria"
-	},
-/area/ruin/space/unpowered)
 "OF" = (
 /obj/machinery/door/window{
 	dir = 1
@@ -1082,14 +1071,14 @@
 /obj/item/flag/syndi{
 	anchored = 1
 	},
-/turf/simulated/floor/engine,
+/turf/simulated/floor/engine/airless,
 /area/ruin/space/unpowered)
 "OU" = (
 /mob/living/simple_animal/hostile/alien/sentinel{
 	animal_species = /mob/living/simple_animal/pet/dog;
 	attack_sound = 'sound/weapons/bite.ogg';
 	attacktext = "bites";
-	damage_coeff = list("brute" = 1, "fire" = 1, "tox" = 1, "clone" = 1, "stamina" = 1, "oxy" = 1);
+	damage_coeff = list("brute"=1,"fire"=1,"tox"=1,"clone"=1,"stamina"=1,"oxy"=1);
 	death_sound = null;
 	deathmessage = "";
 	desc = "This is no longer a goodboy. Not anymore. He has seen too much.";
@@ -1163,9 +1152,7 @@
 	pixel_y = -11;
 	pixel_x = 6
 	},
-/turf/simulated/floor/plasteel{
-	icon_state = "dark"
-	},
+/turf/simulated/floor/plating,
 /area/ruin/space/unpowered)
 "Sz" = (
 /obj/effect/decal/cleanable/blood,
@@ -1271,7 +1258,7 @@
 /turf/simulated/floor/engine,
 /area/ruin/space/unpowered)
 "YE" = (
-/obj/item/twohanded/required/kirbyplants{
+/obj/item/kirbyplants{
 	icon_state = "plant-22"
 	},
 /turf/simulated/floor/grass,
@@ -1289,7 +1276,7 @@
 	animal_species = /mob/living/simple_animal/pet/dog;
 	attack_sound = 'sound/weapons/bite.ogg';
 	attacktext = "bites";
-	damage_coeff = list("brute" = 1, "fire" = 1, "tox" = 1, "clone" = 1, "stamina" = 1, "oxy" = 1);
+	damage_coeff = list("brute"=1,"fire"=1,"tox"=1,"clone"=1,"stamina"=1,"oxy"=1);
 	death_sound = null;
 	deathmessage = "";
 	desc = "This is no longer a goodboy. Not anymore. He has seen too much.";
@@ -1728,9 +1715,9 @@ gx
 DY
 XZ
 bn
-OA
+bG
 uA
-OA
+bG
 bn
 bn
 EB
@@ -2118,9 +2105,9 @@ xO
 yU
 wV
 EJ
-sh
-sh
-sh
+LN
+LN
+LN
 lZ
 lZ
 NQ
@@ -2160,9 +2147,9 @@ xO
 xO
 xO
 vR
-sh
+LN
 hF
-sh
+LN
 hF
 zt
 Hy
@@ -2202,11 +2189,11 @@ xO
 xO
 Jt
 EJ
-sh
-sh
-sh
-sh
-sh
+LN
+LN
+LN
+LN
+LN
 EJ
 EJ
 EJ
@@ -2245,10 +2232,10 @@ ub
 EJ
 EJ
 EJ
-sh
-sh
-sh
-sh
+LN
+LN
+LN
+LN
 oH
 OK
 OK
@@ -2288,8 +2275,8 @@ EJ
 OK
 oH
 OP
-sh
-sh
+LN
+LN
 ls
 EJ
 OK
