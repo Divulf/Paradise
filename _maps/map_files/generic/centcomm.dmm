@@ -5381,9 +5381,14 @@
 /turf/simulated/floor/wood,
 /area/syndicate_mothership)
 "sd" = (
-/obj/structure/sign/barsign,
-/turf/simulated/wall/indestructible/riveted,
-/area/ghost_bar)
+/obj/machinery/barsign{
+	pixel_y = 32
+	},
+/turf/simulated/floor/plasteel{
+	dir = 1;
+	icon_state = "green"
+	},
+/area/centcom/evac)
 "se" = (
 /obj/structure/chair/comfy/shuttle{
 	dir = 4
@@ -7959,7 +7964,7 @@
 /turf/simulated/wall/indestructible/syndicate,
 /area/admin)
 "Cv" = (
-/obj/structure/sign/barsign{
+/obj/machinery/barsign{
 	pixel_y = -32
 	},
 /obj/machinery/icemachine,
@@ -9229,7 +9234,7 @@
 /area/centcom/specops)
 "GT" = (
 /obj/structure/chair,
-/obj/structure/sign/barsign{
+/obj/machinery/barsign{
 	pixel_y = 32
 	},
 /obj/effect/landmark/spawner/tdomeobserve,
@@ -12895,7 +12900,7 @@
 	pixel_y = 5
 	},
 /obj/structure/table/wood,
-/obj/structure/sign/barsign{
+/obj/machinery/barsign{
 	pixel_y = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -13897,10 +13902,11 @@
 /turf/simulated/wall/indestructible/fakeglass,
 /area/centcom/specops)
 "Xi" = (
-/obj/effect/spawner/window,
-/obj/structure/sign/barsign,
-/turf/simulated/floor/plating,
-/area/centcom/evac)
+/obj/machinery/barsign/ghost_bar{
+	pixel_y = 32
+	},
+/turf/simulated/floor/wood,
+/area/ghost_bar)
 "Xj" = (
 /turf/simulated/floor/transparent/glass,
 /area/centcom/specops)
@@ -45997,8 +46003,8 @@ Ng
 Ng
 So
 Vs
-Xi
-Xx
+Qe
+sd
 YO
 ZZ
 gI
@@ -73004,8 +73010,8 @@ vd
 Ml
 vd
 xy
-sd
-Jy
+Me
+Xi
 Jy
 Jy
 Jy

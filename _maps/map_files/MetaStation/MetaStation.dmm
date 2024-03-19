@@ -6266,9 +6266,13 @@
 /turf/simulated/floor/plasteel,
 /area/station/engineering/control)
 "aHe" = (
-/obj/structure/sign/barsign,
-/turf/simulated/wall,
-/area/station/service/bar)
+/obj/machinery/barsign{
+	pixel_y = -32
+	},
+/turf/simulated/floor/plasteel{
+	icon_state = "redcorner"
+	},
+/area/station/hallway/primary/starboard)
 "aHg" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 1
@@ -127760,8 +127764,8 @@ bjp
 bez
 vtx
 boY
-bqA
 aHe
+bsp
 ded
 bEv
 bEv

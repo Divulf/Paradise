@@ -3148,8 +3148,11 @@
 	},
 /area/ruin/space/derelict/crew_quarters)
 "hF" = (
-/obj/structure/sign/barsign,
-/turf/simulated/wall/mineral/titanium/nodecon,
+/obj/effect/decal/cleanable/dirt,
+/obj/machinery/barsign{
+	pixel_y = 32
+	},
+/turf/simulated/floor/plasteel/dark,
 /area/ruin/space/derelict/crew_quarters)
 "hH" = (
 /obj/machinery/door/airlock/public/glass{
@@ -13529,8 +13532,8 @@ gn
 gG
 gG
 gG
+aV
 hF
-hT
 in
 iK
 je

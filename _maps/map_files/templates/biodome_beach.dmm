@@ -492,8 +492,10 @@
 /turf/simulated/floor/beach/sand,
 /area/ruin/powered/beach)
 "Ds" = (
-/obj/structure/sign/barsign,
-/turf/simulated/wall/mineral/sandstone,
+/obj/machinery/barsign{
+	pixel_y = 32
+	},
+/turf/simulated/floor/beach/sand,
 /area/ruin/powered/beach)
 "Ec" = (
 /obj/machinery/door/airlock/sandstone{
@@ -1087,8 +1089,8 @@ aC
 aC
 aC
 JF
+aj
 Ds
-bE
 bE
 bE
 bE

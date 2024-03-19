@@ -25140,9 +25140,11 @@
 /turf/simulated/floor/plasteel/goonplaque/memorial,
 /area/station/hallway/secondary/exit)
 "bze" = (
-/obj/structure/sign/barsign,
-/turf/simulated/wall,
-/area/station/service/bar)
+/obj/machinery/barsign{
+	pixel_y = 32
+	},
+/turf/simulated/floor/plasteel,
+/area/station/hallway/primary/starboard/west)
 "bzf" = (
 /turf/simulated/floor/plasteel{
 	dir = 1;
@@ -131131,8 +131133,8 @@ bmq
 bmq
 bmq
 bzo
+aUS
 bze
-bAk
 bHy
 bDb
 bEy
