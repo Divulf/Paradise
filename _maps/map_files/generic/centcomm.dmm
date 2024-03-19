@@ -2548,6 +2548,12 @@
 	},
 /turf/simulated/floor/mineral/titanium,
 /area/shuttle/transport)
+"iW" = (
+/obj/machinery/barsign/ghost_bar{
+	pixel_y = 32
+	},
+/turf/simulated/floor/wood,
+/area/ghost_bar)
 "iX" = (
 /obj/machinery/suit_storage_unit/syndicate/secure,
 /turf/simulated/floor/mineral/plastitanium/red,
@@ -5380,10 +5386,6 @@
 /obj/effect/landmark/spawner/syndie,
 /turf/simulated/floor/wood,
 /area/syndicate_mothership)
-"sd" = (
-/obj/structure/sign/barsign,
-/turf/simulated/wall/indestructible/riveted,
-/area/ghost_bar)
 "se" = (
 /obj/structure/chair/comfy/shuttle{
 	dir = 4
@@ -7324,6 +7326,15 @@
 	icon_state = "cafeteria"
 	},
 /area/ghost_bar)
+"zZ" = (
+/obj/machinery/barsign{
+	pixel_y = 32
+	},
+/turf/simulated/floor/plasteel{
+	dir = 1;
+	icon_state = "green"
+	},
+/area/centcom/evac)
 "Aa" = (
 /obj/machinery/iv_drip,
 /turf/simulated/floor/plasteel/dark,
@@ -7959,7 +7970,7 @@
 /turf/simulated/wall/indestructible/syndicate,
 /area/admin)
 "Cv" = (
-/obj/structure/sign/barsign{
+/obj/machinery/barsign{
 	pixel_y = -32
 	},
 /obj/machinery/icemachine,
@@ -9229,7 +9240,7 @@
 /area/centcom/specops)
 "GT" = (
 /obj/structure/chair,
-/obj/structure/sign/barsign{
+/obj/machinery/barsign{
 	pixel_y = 32
 	},
 /obj/effect/landmark/spawner/tdomeobserve,
@@ -12895,7 +12906,7 @@
 	pixel_y = 5
 	},
 /obj/structure/table/wood,
-/obj/structure/sign/barsign{
+/obj/machinery/barsign{
 	pixel_y = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -13896,11 +13907,6 @@
 	},
 /turf/simulated/wall/indestructible/fakeglass,
 /area/centcom/specops)
-"Xi" = (
-/obj/effect/spawner/window,
-/obj/structure/sign/barsign,
-/turf/simulated/floor/plating,
-/area/centcom/evac)
 "Xj" = (
 /turf/simulated/floor/transparent/glass,
 /area/centcom/specops)
@@ -45997,8 +46003,8 @@ Ng
 Ng
 So
 Vs
-Xi
-Xx
+Qe
+zZ
 YO
 ZZ
 gI
@@ -73004,8 +73010,8 @@ vd
 Ml
 vd
 xy
-sd
-Jy
+Me
+iW
 Jy
 Jy
 Jy
